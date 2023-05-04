@@ -203,7 +203,7 @@ Inherits Canvas
 
 	#tag Method, Flags = &h0
 		Function CustomDrawn() As boolean
-		  return RaiseEvent DoCustomDrawing()
+		  return IsEventImplemented("DrawRow")
 		End Function
 	#tag EndMethod
 
@@ -403,10 +403,6 @@ Inherits Canvas
 
 	#tag Hook, Flags = &h0
 		Event AnyChange()
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event DoCustomDrawing() As boolean
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
