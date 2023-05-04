@@ -32,7 +32,7 @@ Inherits Canvas
 
 	#tag Event
 		Function MouseDown(X As Integer, Y As Integer) As Boolean
-		  me.SetFocus
+		  Me.SetFocus
 		  
 		  // If CloseOnExit is false, anything in the MouseDown event that deactivates the popup window, e.g. opening another window,
 		  //  may cause the popup to deactivate and close immediately. Setting CloseOnExit to True prevents menu closure on
@@ -49,9 +49,9 @@ Inherits Canvas
 		  call RaiseEvent MouseDown(popup.top) // # see Notes
 		  
 		  // Show popup window modally, it returns selected row index or -1 if no selection
-		  Dim ReturnedIndex As Integer = popup.Popup(me, Rows, RowHeight)
+		  Dim ReturnedIndex As Integer = popup.Popup(Me, Rows, RowHeight)
 		  
-		  RaiseEvent MenuClosed
+		  RaiseEvent MenuClosed(ReturnedIndex < 0)
 		  
 		  If ReturnedIndex >= 0 then // User selected a row
 		    mSelectedRowIndex = ReturnedIndex
@@ -394,7 +394,7 @@ Inherits Canvas
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event MenuClosed()
+		Event MenuClosed(wasCancelled as boolean)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
