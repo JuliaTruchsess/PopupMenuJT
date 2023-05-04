@@ -10,7 +10,7 @@ Begin Window DemoWindow
    HasFullScreenButton=   False
    HasMaximizeButton=   True
    HasMinimizeButton=   True
-   Height          =   604
+   Height          =   664
    ImplicitInstance=   True
    MacProcID       =   0
    MaximumHeight   =   32000
@@ -830,7 +830,7 @@ Begin Window DemoWindow
       Height          =   140
       Index           =   -2147483648
       InitialParent   =   ""
-      Left            =   228
+      Left            =   67
       LockBottom      =   False
       LockedInPosition=   False
       LockLeft        =   True
@@ -841,7 +841,7 @@ Begin Window DemoWindow
       TabPanelIndex   =   0
       TabStop         =   True
       Tooltip         =   ""
-      Top             =   433
+      Top             =   431
       Transparent     =   True
       Visible         =   True
       Width           =   342
@@ -859,7 +859,7 @@ Begin Window DemoWindow
       Index           =   -2147483648
       InitialParent   =   ""
       Italic          =   False
-      Left            =   500
+      Left            =   429
       LockBottom      =   False
       LockedInPosition=   False
       LockLeft        =   True
@@ -875,11 +875,74 @@ Begin Window DemoWindow
       TextAlignment   =   0
       TextColor       =   &c00000000
       Tooltip         =   ""
-      Top             =   491
+      Top             =   492
       Transparent     =   False
       Underline       =   False
       Visible         =   True
       Width           =   195
+   End
+   Begin PopupMenuJT pum2
+      AllowAutoDeactivate=   False
+      AllowFocus      =   True
+      AllowFocusRing  =   True
+      AllowTabs       =   False
+      Backdrop        =   0
+      DoubleBuffer    =   False
+      Enabled         =   True
+      Height          =   35
+      Index           =   -2147483648
+      InitialParent   =   ""
+      Left            =   98
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   True
+      LockTop         =   True
+      Margin          =   10
+      Scope           =   0
+      TabIndex        =   25
+      TabPanelIndex   =   0
+      TabStop         =   True
+      Tooltip         =   ""
+      Top             =   609
+      Transparent     =   False
+      Visible         =   True
+      Width           =   295
+   End
+   Begin Label Label8
+      AllowAutoDeactivate=   True
+      Bold            =   True
+      DataField       =   ""
+      DataSource      =   ""
+      Enabled         =   True
+      FontName        =   "System"
+      FontSize        =   16.0
+      FontUnit        =   0
+      Height          =   23
+      Index           =   -2147483648
+      InitialParent   =   ""
+      Italic          =   False
+      Left            =   90
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      Multiline       =   True
+      Scope           =   2
+      Selectable      =   False
+      TabIndex        =   26
+      TabPanelIndex   =   0
+      TabStop         =   True
+      Text            =   "PopupMenuJT (with custom drawing)"
+      TextAlignment   =   2
+      TextColor       =   &c00000000
+      Tooltip         =   ""
+      Top             =   583
+      Transparent     =   False
+      Underline       =   False
+      Visible         =   True
+      Width           =   303
    End
 End
 #tag EndWindow
@@ -967,7 +1030,7 @@ End
 		End Function
 	#tag EndEvent
 	#tag Event
-		Sub MenuClosed()
+		Sub MenuClosed(wasCancelled as boolean)
 		  If pw <> Nil Then pw.Close
 		End Sub
 	#tag EndEvent
@@ -1190,7 +1253,7 @@ End
 #tag EndEvents
 #tag Events SegmentedButton1
 	#tag Event
-		Sub Pressed(segmentIndex as integer)
+		Sub Pressed(segmentIndex As Integer)
 		  
 		  For each c As Control in Controls
 		    If c IsA PopupMenuJT Then
@@ -1203,6 +1266,81 @@ End
 		      PopupMenu(c).SelectedRowIndex = 0
 		    End
 		  Next
+		  
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events pum2
+	#tag Event
+		Sub Open()
+		  
+		  'me.AddAllRows Array("January", "February", "March", "April April April April April", "May", "June", "July", "August", "September", "October", "November", "December")
+		  
+		  Dim list() As String = GenerateSampleList(0)
+		  
+		  for i as Integer = 0 to list.LastRowIndex
+		    me.Addrow(list(i),Aria)
+		  next
+		  
+		  me.SelectedRowIndex = 0
+		  
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Function MouseDown(MenuTop As Integer) As Boolean
+		  If pw <> Nil Then pw.Close
+		  if cbShowPic.Value Then
+		    pw = new PicWindow
+		    pw.Left = me.Left + me.TrueWindow.Left - pw.Width -20
+		    pw.top = me.Top + me.TrueWindow.top- pw.Height/2
+		    pw.ShowPic(me.RowTagAt(me.SelectedRowIndex))
+		  End
+		End Function
+	#tag EndEvent
+	#tag Event
+		Sub MenuClosed(wasCancelled as boolean)
+		  If pw <> Nil Then pw.Close
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Sub DrawRow(g as graphics, rowNumber as integer)
+		  Static r As New random
+		  
+		  Dim v As Variant = Me.RowTagAt(rowNumber)
+		  
+		  If v.IsNull Or v.Type <> Variant.TypeString Then
+		    // this is just a SUPER lazy way to persist the random color and style settings
+		    g.ForeColor = RGB( r.inrange(0,255), r.inrange(0,255), r.inrange(0,255))
+		    g.Bold = If( r.inrange(0,10) > 5, True, False )
+		    g.Italic = If( r.inrange(0,10) > 5, True, False )
+		    g.Underline = If( r.inrange(0,10) > 5, True, False )
+		    
+		    Me.RowTagAt(rowNumber) = "ForeColor=" + Str(g.ForeColor) + EndOfLine +_
+		    "Bold=" +Str(g.Bold) + EndOfLine +_
+		    "Italic="+Str(g.Italic) + EndOfLine +_
+		    "Underline=" + Str(g.Underline) + EndOfLine 
+		    
+		  Else
+		    Dim parts() As String = Split( Me.RowTagAt(rowNumber) , EndOfLine )
+		    For Each p As String In parts
+		      Select Case True
+		      Case p.BeginsWith("ForeColor=")
+		        Dim colorString As String = p.Replace("ForeColor=","") 
+		        v = colorString
+		        g.ForeColor = v.ColorValue
+		      Case p.BeginsWith("Bold=")
+		        g.Bold = p.Replace("Bold=","") = "true" 
+		      Case p.BeginsWith("Italic=")
+		        g.Italic = p.Replace("Italic=","") = "true" 
+		      Case p.BeginsWith("Underline=")
+		        g.Underline = p.Replace("Underline=","") = "true" 
+		      End Select
+		    Next
+		  End If
+		  
+		  Dim topoffset As Double = (g.height - g.TextHeight) / 2
+		  
+		  g.DrawText Me.RowValueAt(rowNumber), 0, g.TextAscent + topoffset
 		  
 		End Sub
 	#tag EndEvent

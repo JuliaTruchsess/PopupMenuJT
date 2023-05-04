@@ -216,11 +216,13 @@ End
 
 	#tag Method, Flags = &h0
 		Function Popup(Source As PopupMenuJT, Rows() As String, RowHeight As Integer) As Integer
-		  me.Source = Source
+		  Me.Source = Source
 		  me.rows = Rows
 		  me.RowHeight = RowHeight
 		  me.mBackColor = Source.BckgndColor
-		  me.margin = Source.Margin
+		  Me.margin = Source.Margin
+		  Me.mCustomDrawing = source.CustomDrawn
+		  
 		  mWinkOnAction = Source.WinkOnAction
 		  ShowPreviousSelection = Source.ShowPreviousSelection
 		  
@@ -372,6 +374,10 @@ End
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mCustomDrawing As boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mMouseIndex As Integer
 	#tag EndProperty
 
@@ -504,14 +510,21 @@ End
 		  Dim Topoffset As Integer = UpArrow.Height-2 // Subtracting 2 centers the highlight on the control
 		  
 		  // Draw the rows
+		  Dim rowtop As Integer = Topoffset
 		  
-		  for row As integer = 0 to (RowsAbove+RowsBelow) -1
+		  For row As Integer = 0 To (RowsAbove+RowsBelow) -1
 		    
 		    // Highlight
-		    If row = mMouseIndex and MouseIn and not Wink Then
-		      If not ScrollIng Then // Highlighting causes flicker when we change Height in Resize, so inhibit.
+		    If row = mMouseIndex And MouseIn And Not Wink Then
+		      If Not ScrollIng Then // Highlighting causes flicker when we change Height in Resize, so inhibit.
 		        g.ForeColor = Source.HighlightColor
-		        g.FillRectangle(0,row*RowHeight + Topoffset,me.Width,RowHeight)
+		        #If TargetMacOS
+		          Const inset = 3
+		          Const cornerrarc = 8
+		          g.FillRoundRect(inset,row*RowHeight + Topoffset,Me.Width-(2*inset),RowHeight, cornerrarc, cornerrarc )
+		        #Else
+		          g.FillRectangle(0,row*RowHeight + Topoffset,Me.Width,RowHeight)
+		        #EndIf
 		        g.ForeColor = Color.White
 		      End
 		    Else
@@ -519,7 +532,7 @@ End
 		    End
 		    
 		    // Draw checkmark and set left margin
-		    dim adjustedmargin As Integer
+		    Dim adjustedmargin As Integer
 		    If ShowPreviousSelection And CheckPic <> Nil Then
 		      If  row + FirstIndex = Source.SelectedRowIndex Then
 		        g.DrawPicture checkpic,Margin,row * RowHeight + Topoffset
@@ -529,9 +542,15 @@ End
 		      adjustedmargin = margin
 		    End
 		    
-		    // Center the text vertically. May not be quite right for exotic fonts, depends on font metrics.
-		    g.DrawText rows(row+FirstIndex), adjustedmargin, row*rowheight + RowHeight/2 + g.FontAscent/2 - (g.TextHeight-g.FontAscent)/2 + Topoffset
+		    If mCustomDrawing Then
+		      Dim clip As graphics = g.clip(adjustedmargin, rowTop, g.width, rowheight)
+		      source.DrawRow clip, row
+		    Else
+		      // Center the text vertically. May not be quite right for exotic fonts, depends on font metrics.
+		      g.DrawText rows(row+FirstIndex), adjustedmargin, row*rowheight + RowHeight/2 + g.FontAscent/2 - (g.TextHeight-g.FontAscent)/2 + Topoffset
+		    End If
 		    
+		    rowtop = rowtop + rowheight
 		  Next
 		  
 		  // Draw scroll arrows if required
