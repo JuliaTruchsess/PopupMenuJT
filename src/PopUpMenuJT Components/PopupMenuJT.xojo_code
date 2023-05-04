@@ -202,6 +202,18 @@ Inherits Canvas
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function CustomDrawn() As boolean
+		  return RaiseEvent DoCustomDrawing()
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub DrawRow(g as graphics, row as integer)
+		  RaiseEvent DrawRow(g, row)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function FontName() As String
 		  return mFontName
 		End Function
@@ -391,6 +403,14 @@ Inherits Canvas
 
 	#tag Hook, Flags = &h0
 		Event AnyChange()
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
+		Event DoCustomDrawing() As boolean
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
+		Event DrawRow(g as graphics, rowNumber as integer)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0

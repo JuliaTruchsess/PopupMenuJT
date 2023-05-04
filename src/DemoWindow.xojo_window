@@ -967,7 +967,7 @@ End
 		End Function
 	#tag EndEvent
 	#tag Event
-		Sub MenuClosed()
+		Sub MenuClosed(wasCancelled as boolean)
 		  If pw <> Nil Then pw.Close
 		End Sub
 	#tag EndEvent
@@ -1190,7 +1190,7 @@ End
 #tag EndEvents
 #tag Events SegmentedButton1
 	#tag Event
-		Sub Pressed(segmentIndex as integer)
+		Sub Pressed(segmentIndex As Integer)
 		  
 		  For each c As Control in Controls
 		    If c IsA PopupMenuJT Then
